@@ -146,7 +146,7 @@ obj.a.a;  // liuzhen
 下面来看下实现深拷贝的方法，首先，我们可以使用 `JSON.parse(JSON.stringify)` 来实现
 
 ```js
-let arr = [1, 3, { username: 'kaindy; }];
+let arr = [1, 3, { username: 'kaindy' }];
 let copyArr = JSON.parse(JSON.stringif(arr));
 copyArr[2].username = 'liuzhen';
 arr[2].username;    // kaindy
