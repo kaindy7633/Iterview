@@ -93,3 +93,99 @@ data[2]();    // 2
 ```
 
 立即执行函数可创建不污染全局的命名空间。
+
+## 如何数组去重？写出所有可能的实现代码
+
+```js
+// forEach
+let arr = ['1', '2', '3', '1', 'a', 'b', 'b']
+const unique = arr => {
+    let obj = {}
+    arr.forEach(value => {
+        obj[value] = 0
+    })
+    return Object.keys(obj)
+}
+
+// filter
+let arr = ['1', '2', '3', '1', 'a', 'b', 'b']
+const unique = arr => {
+    return arr.filter((ele, index, array) => {
+        return index === array.indexOf(ele)
+    })
+}
+
+// set
+let arr = ['1', '2', '3', '1', 'a', 'b', 'b']
+const unique = arr => {
+    return [...new Set(arr)]
+}
+```
+
+## 阐述浅拷贝与深拷贝的区别，并手写代码实现深拷贝。
+
+在JavaScript中，数据类型分为基本数据类型（`String`、`Number`、`Boolean`、`Undefined`、`Null`和`Symbol`）和引用数据类型（`Object`、`Array`和`Function`）。
+
+基本类型的数据存储在栈空间（stack）中，而引用数据类型存储在堆空间中。引用数据类型在栈中存储了指针，该指针指向了该数据实体在堆空间的实际地址，解释器会依据这个地址来获取数据实体。
+
+深浅拷贝都只是针对 `Object` 或 `Array` 这些引用类型的。浅拷贝只复制指向某个对象的指针，而非复制对象本身，新旧对象只是共享一块内存。而深拷贝则是创建另外一个一模一样的对象，它们不共享内存，修改哪一个都不会影响到另一个。
+
+现在的问题是，一个对象可能非常复杂，因为其元素的值又是一个引用类型，比如数组或对象，这时，浅拷贝可以复制其第一层的数据，而元素值是引用类型的，则复制的是引用指针，所以，这时我们就需要深拷贝，来复制目标对象中所有层级中的值，无论是基本类型或引用类型。
+
+浅拷贝可以使用 `Object.assign` 方法来实现：
+
+```js
+var obj = { a: { a: 'kaindy', b: 100 } };
+var copyObj = Object.assign({}, obj);
+copyObj.a.a = 'liuzhen';
+obj.a.a;  // liuzhen
+```
+
+如果目标只有一层，则使用 `Object.assign` 就是深拷贝。
+
+下面来看下实现深拷贝的方法，首先，我们可以使用 `JSON.parse(JSON.stringify)` 来实现
+
+```js
+let arr = [1, 3, { username: 'kaindy; }];
+let copyArr = JSON.parse(JSON.stringif(arr));
+copyArr[2].username = 'liuzhen';
+arr[2].username;    // kaindy
+```
+
+但这方法不能解决函数拷贝的问题，即如果元素值是函数，则拷贝会失败。所以，我们只能使用递归的方式来手动写深拷贝代码：
+
+```js
+// 首先定义一个推断数据类型的函数
+function checkType(target) {
+  return Object.prototype.toString.call(target).slice(8, -1);
+}
+
+// 实现深度克隆（对象/数组）
+function deepClone(target) {
+  // 判断目标类型
+  let result, targetType = checkType(target);
+  if (targetType === 'Object') {
+    result = {};
+  } else if (targetType === 'Array') {
+    result = [];
+  } else {
+    // 基本数据类型，直接返回目标
+    return target;
+  }
+
+  // 遍历目标数据
+  for (let i in target) {
+    // 获取每一项
+    let value = target[i];
+    // 判断每一项是否为引用类型
+    if (checkType(value) === 'Object' || checkType(value) === 'Array') {
+      result[i] = deepClone(value);     // 执行递归
+    } else {
+      result[i] = value;
+    }
+  }
+
+  // 返回结果
+  return result;
+}
+```
