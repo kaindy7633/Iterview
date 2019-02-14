@@ -147,7 +147,7 @@ obj.a.a;  // liuzhen
 
 ```js
 let arr = [1, 3, { username: 'kaindy' }];
-let copyArr = JSON.parse(JSON.stringif(arr));
+let copyArr = JSON.parse(JSON.stringify(arr));
 copyArr[2].username = 'liuzhen';
 arr[2].username;    // kaindy
 ```
@@ -187,5 +187,62 @@ function deepClone(target) {
 
   // 返回结果
   return result;
+}
+```
+
+## 使用正则实现一个 `trim()` 函数
+
+```js
+function trim(str) {
+  let reg = /^\s+|\s+$/g;
+  return str.replace(reg, "");
+}
+```
+
+## 请解释原型与原型链
+
+原型是 `ECMAScript` 实现继承的过程中产生的一个概念，而原型链则是 `ECMAScript` 实现继承的一种机制。
+
+JavaScript中的每个对象都有一个内置的 `__proto__` 属性指向创建它的构造函数的 `prototype` （原型）属性，而 `prototype` 则是函数才具有的属性。
+
+在JavaScript中，函数也是对象。普通的对象，比如使用字面量方法或构造函数方法创建的对象，都具有 `__proto__` 属性，而函数对象才拥有 `prototype` 属性（原型属性）
+
+```js
+// 普通对象，自创建起就拥有 __proto__ 属性， 并指向 Object
+var o1 = {};
+var o2 = new Object();
+
+// 函数对象
+function F1() {};
+var F2 = function() {};
+var F3 = new Function();
+```
+
+`prototype` 属性的值是一个对象，它只有一个属性： `constructor`。 `constructor` 是一个公有且不可枚举的属性。
+
+`__proto__` 是每个对象都有的隐式原型属性，它指向创建该对象的构造函数的原型，即 `[[prototype]]`，但 `[[prototype]]` 是一个内部属性且不允许访问，所以我们可以使用 `__proto__` 来访问。
+
+要在JavaScript中实现继承，我们就可以通过 `__proto__` 属性将对象和原型联系起来组成原型链，就可以通过其访问不属于自己的属性了。
+
+当我们使用 `new` 操作符时，生成的实例对象就拥有了 `__proto__` 属性，所以可以说在 `new` 的过程中，新对象被添加了 `__proto__` 并且连接到构造函数的原型上了。
+
+`new` 的过程如下：
+
+1、 新生成了一个对象
+2、 链接到原型
+3、 绑定 `this`
+4、 返回新对象
+
+我们可以来自己实现一个 `new` 函数：
+
+```js
+function create() {
+  let obj = new Object();   // 创建一个空对象
+  let Con = [].shift.call(arguments);   // 获取构造函数
+  obj.__proto__ = Con.prototype;    // 链接到原型
+  let result = Con.apply(obj, arguments);   // 绑定this并执行构造函数
+  
+  // 确保 new 出来的是一个对象
+  return typeof result === 'object' ? result : obj;
 }
 ```
